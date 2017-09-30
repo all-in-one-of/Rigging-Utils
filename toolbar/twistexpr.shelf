@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="twistexpr" label="Twist Expr" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[# distributes the rotation of
+# two nulls across the selected bones
+import toolutils
+sceneviewer = toolutils.sceneViewer()
+    
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+
+reverse = 0
+if ctrlclick:
+    reverse = 1
+
+# objects
+oinputlist = sceneviewer.selectObjects('Select the First then Last control objects. Then press enter to complete.', allow_multisel=True)
+for node in oinputlist:
+    node.setSelected(False, True)
+# bones
+binputlist = sceneviewer.selectObjects('Select the bones in order. Then press enter to complete.', allow_multisel=True)
+for node in binputlist:
+    node.setSelected(False, True)
+
+firstctrl = oinputlist[0]
+secondctrl = oinputlist[1]
+firstbone = binputlist[0]
+secondbone = binputlist[1]
+thirdbone = binputlist[2]
+fourthbone = binputlist[3]
+
+# each bone should get it's
+# rotations from the two nulls
+# first null 0.75 > first bone
+#            0.5 > second bone
+#            0.25 > third bone
+# second null 0.25 > first bone
+#            0.5 > second bone
+#            0.75 > third bone
+
+if reverse == 1:
+    sign = "-"
+else:
+    sign = "+"
+
+firstboneexpr = 'ch("../{}/rz") * 1.0 {} ch("../{}/rz") * 0.15'.format(firstctrl, sign, secondctrl)
+secondboneexpr = 'ch("../{}/rz") * 0.66 {} ch("../{}/rz") * 0.33'.format(firstctrl, sign, secondctrl)
+thirdboneexpr = 'ch("../{}/rz") * 0.33 {} ch("../{}/rz") * 0.66'.format(firstctrl, sign, secondctrl)
+fourthboneexpr = 'ch("../{}/rz") * 0.15 {} ch("../{}/rz") * 1.0'.format(firstctrl, sign, secondctrl)
+
+firstbone.parm("rz").setExpression(firstboneexpr)
+secondbone.parm("rz").setExpression(secondboneexpr)
+thirdbone.parm("rz").setExpression(thirdboneexpr)
+fourthbone.parm("rz").setExpression(fourthboneexpr)]]></script>
+  </tool>
+</shelfDocument>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="clustercenter" label="Cluster Center" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[# Cluster Center
+import toolutils
+import string
+import sys
+sceneviewer = toolutils.sceneViewer()
+sel = sceneviewer.selectGeometry('Select points. Enter to accept.', 0, False, False, True, None, None, True, allow_obj_sel=False)
+
+#Get last selected node
+node = sel.nodes()[-1]
+
+#Convert selection to string (tuple)
+sel = sel.selectionStrings(0)
+selpoints = string.split(sel[0],' ')
+if len(selpoints) < 2 :
+    print "select at least two points"
+    sys.exit()
+    
+# make transform node
+network = node.parent()
+transform = network.createNode("xform", "transform")
+transform.setFirstInput(node)
+transform.moveToGoodPosition()
+transform.setDisplayFlag(True)
+transform.setRenderFlag(True)
+transform.parm("grouptype").set("points")
+transform.parm("group").set(" ".join(sel))
+transform.setSelected(True)
+
+# find the bounds of the selection
+points = str(selpoints)
+g = transform.geometry()
+bbox = g.pointBoundingBox(" ".join(sel))
+center = bbox.center()
+
+# make null object
+obj = network.parent()
+null = obj.createNode("null", network.name()+transform.name())
+null.parmTuple("t").set(center)
+null.moveParmTransformIntoPreTransform()
+null.moveToGoodPosition()
+
+# ref null t to transform t
+drivert = null.parmTuple("t")
+driverr = null.parmTuple("r")
+drivers = null.parmTuple("s")
+transform.parmTuple("t").set(drivert)
+transform.parmTuple("r").set(driverr)
+transform.parmTuple("s").set(drivers)
+transform.parmTuple("p").set(center)
+
+# set delete script
+delpath = transform.path()
+deletescript = "oprm " + delpath
+null.setDeleteScript(deletescript, hou.scriptLanguage.Hscript)
+
+toolutils.homeToSelectionNetworkEditorsFor(null)
+sceneviewer.setCurrentNode(null, True)
+# why are you buggy?
+#sceneviewer.setCurrentState('objxform')]]></script>
+  </tool>
+</shelfDocument>

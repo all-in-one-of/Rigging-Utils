@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="fix_regions" label="fix regions" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[bones = hou.selectedNodes()
+for b in bones:
+    captureRtop = b.parmTuple("ccrtopcap").eval()
+    len = b.parm("length").eval()
+    newVal = len * captureRtop[0]
+    b.parmTuple("ccrtopcap").set((newVal, newVal, newVal))
+    b.parmTuple("ccrbotcap").set((newVal, newVal, newVal))
+    b.parmTuple("crtopcap").set((newVal, newVal, newVal))
+    b.parmTuple("crbotcap").set((newVal, newVal, newVal))]]></script>
+  </tool>
+</shelfDocument>

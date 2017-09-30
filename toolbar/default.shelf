@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="SideFX::toonsimple" orbolt="True" label="Toon Simple" icon="SideFX__toonsimple-icon.png">
+    <helpText><![CDATA[Install or download the Toon Simple Orbolt digital asset.]]></helpText>
+    <helpURL>http://www.orbolt.com/asset/SideFX::toonsimple</helpURL>
+    <script scriptType="python"><![CDATA[import shelfutils
+shelfutils.installOrboltAsset(kwargs, "SideFX::toonsimple", "http://www.orbolt.com/asset/SideFX::toonsimple")]]></script>
+  </tool>
+
+  <tool name="remove_FK_1" label="Remove FK 1" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[##################################
+# Remove FK controls - 
+# created by FKControl shelf tool
+# Select bone(s)
+# click button
+#################################
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+# get the bones
+bonelist = hou.selectedNodes()
+netparent = bonelist[0].parent()
+
+for bone in bonelist:
+    # get the parms
+    boner = bone.parmTuple("r")
+    bonerx = bone.parm("rx")
+    rOrd = bone.parm("rOrd")
+    # get the ctrl object
+    ctrlname = bonerx.expression().split("/")[1]
+    ctrl = netparent.node(ctrlname)
+    # remove the expressions
+    boner.deleteAllKeyframes()
+    rOrd.deleteAllKeyframes()
+    ctrl.destroy()]]></script>
+  </tool>
+</shelfDocument>

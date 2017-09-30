@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="tempproxy" label="Temp Proxy" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[###################################
+# Create Temp Proxy Objects on Bones
+# Select bones
+# click button
+#################################
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+# get the objects
+bonelist = hou.selectedNodes()
+network = hou.selectedNodes()[0].parent()
+for bone in bonelist:
+    bonelength = bone.parm('length').eval()
+    bonename = bone.name()
+    proxyobj = network.createNode("geo", bonename + '_proxy')
+    for child in proxyobj.children():
+        child.destroy()
+    proxygeo = proxyobj.createNode('box', 'box')
+    proxygeo.parm('sizex').set(0.1)
+    proxygeo.parm('sizez').set(0.75 * bonelength)
+    proxygeo.parm('ty').setExpression("ch(\"scale\")/2")
+    proxygeo.parm('tz').set(-bonelength/2)
+    
+    proxyedit = proxyobj.createNode('edit', 'edit')
+    proxyedit.setFirstInput(proxygeo)
+    proxyedit.moveToGoodPosition()
+    proxyedit.parm('group').set("4-7")
+    proxyedit.parm('ty').set(-0.5 + bonelength/4)
+    proxyedit.parm('sx').set(0)
+    
+    proxyedit.setDisplayFlag(True)
+    proxyedit.setRenderFlag(True)
+    # parent and place
+    proxyobj.setFirstInput(bone)
+    proxyobj.moveToGoodPosition()
+    proxyobj.setSelectableInViewport(False)]]></script>
+  </tool>
+</shelfDocument>

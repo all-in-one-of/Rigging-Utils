@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="connect_points" label="Connect Points" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[#Connect selected points
+import toolutils
+import string
+import sys
+#Get selection
+sel = toolutils.sceneViewer().selectGeometry('Select geometry', 0,False, False, True, None, None, True)
+#Get last selected node
+node = sel.nodes()[-1]
+#Convert selection to string (tuple)
+sel = sel.selectionStrings(0)
+selpoints = string.split(sel[0],' ')
+if len(selpoints) < 2 :
+    print "select at least two points"
+    sys.exit()
+
+#Execution
+#If attrib wrangle exist, use it, else create a new one and add a polyline in either case
+if node.name().find('Connect') == 0 and node.type().name() == 'attribwrangle' :
+    attribw = node
+    expression = attribw.parm('snippet').eval()
+    expression += "prim = addprim(0,'polyline');\n"
+else :
+    attribw = node.createOutputNode('attribwrangle','Connect1')
+    expression = "int prim = addprim(0,'polyline');\n"
+#Add vertex to primitive by point
+for pt in selpoints :
+    expression += "addvertex(0,prim," + pt + ");\n"
+#Define Vexpression
+attribw.parm("class").set(0)
+attribw.parm('snippet').set(expression)
+#Set Flags
+attribw.setDisplayFlag(True)
+attribw.setRenderFlag(True)]]></script>
+  </tool>
+</shelfDocument>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="makenetworkimage" label="Make Network Image" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[# make a background image
+# select a node
+# click button
+
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+
+# get the object
+nodes = hou.selectedNodes()
+
+index = 0
+images = []
+for node in nodes:
+    editor = hou.ui.paneTabOfType(hou.paneTabType.NetworkEditor)
+    image = hou.NetworkImage()
+    image.setPath('$HFS/houdini/pic/numbers_A_'+ str(index+1) + '.png')
+    image.setRelativeToPath(node.path())
+    image.setRect(hou.BoundingRect(1.1, -1, 2, 2))
+    index += 1
+    images.append(image)
+editor.setBackgroundImages(images)
+
+]]></script>
+  </tool>
+</shelfDocument>

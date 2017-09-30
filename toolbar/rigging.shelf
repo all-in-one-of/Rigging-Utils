@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <toolshelf name="rigshelf" label="Rigging Shelf">
+    <memberTool name="iktwisttool1"/>
+    <memberTool name="randomnulls"/>
+    <memberTool name="boneiktwisttool"/>
+    <memberTool name="connect_points"/>
+    <memberTool name="fkcontrol_1"/>
+    <memberTool name="remove_FK_1"/>
+    <memberTool name="fkcontrol2"/>
+    <memberTool name="nullatgeocenter"/>
+    <memberTool name="ctrlgroup"/>
+    <memberTool name="rotctrl"/>
+    <memberTool name="transctrl"/>
+    <memberTool name="riggngtools"/>
+    <memberTool name="translatectrl"/>
+    <memberTool name="splitbone"/>
+    <memberTool name="twistexpr"/>
+    <memberTool name="proxyobject"/>
+    <memberTool name="togglelockout"/>
+    <memberTool name="deleteconstraints"/>
+    <memberTool name="makenetworkimage"/>
+    <memberTool name="togglexray"/>
+    <memberTool name="clustercenter"/>
+    <memberTool name="tempproxy"/>
+    <memberTool name="makestepatnode"/>
+    <memberTool name="togglebonecolorlink"/>
+    <memberTool name="setcamtoview"/>
+  </toolshelf>
+
+  <tool name="randomnulls" label="Random Nulls" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[from rigtoolutils import randomnulls
+
+randomnulls.createNulls()]]></script>
+  </tool>
+
+  <tool name="iktwisttool1" label="IK Twist Tool" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[from rigtoolutils import iktwisttool
+
+iktwisttool.invokeTool(kwargs)]]></script>
+  </tool>
+
+  <tool name="boneiktwisttool" label="Bone IK" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[from rigtoolutils import boneiktwisttool
+
+boneiktwisttool.invokeTool(kwargs)]]></script>
+  </tool>
+</shelfDocument>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="injectproxy" label="Inject Proxy" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[#################################
+# Save display SOP geo
+# as file in hda
+# replace with File SOP
+# if display SOP is locked
+# delete it
+#################################
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+
+# get the objects
+objlist = hou.selectedNodes()
+
+# get the current hda
+hda_definition = objlist[0].parent().type().definition()
+
+# get the display SOP
+for node in objlist:
+    # inject geo
+    nodename = node.name()
+    section_name = node.name()+".bgeo"
+    dsop = node.displayNode()
+    section = dsop.geometry().data()
+    # compression_type=hou.compressionType.Blosc
+    hda_definition.addSection(section_name, section)
+    # remove locked SOP
+    if dsop.isHardLocked():
+        dsop.destroy()
+    # add file SOP with opdef path
+    file = node.createNode("file", nodename+"_file")
+    file.parm("file").set("opdef:../..?"+section_name)
+    
+    if ctrlclick:
+        # make a pose_scope SOP
+        pose = node.createNode("posescope", "posescope")
+        pose.setDisplayFlag(True)
+        pose.setRenderFlag(True)
+    else:
+        file.setDisplayFlag(True)
+        file.setRenderFlag(True)
+    
+
+    
+]]></script>
+  </tool>
+</shelfDocument>

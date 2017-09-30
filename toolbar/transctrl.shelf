@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="transctrl" label="Translate CTRL" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[##################################
+# Make Translate CTRL
+# Select geo Object
+# click button
+#################################
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+# get the geo Object
+geoObject = hou.selectedNodes()
+geoObjectName = geoObject[0].name()
+netparent = geoObject[0].parent()
+
+for node in geoObject:
+    node.parmTuple("t").lock((False, False, False))
+    node.parmTuple("r").lock((True, True, True))
+    node.parmTuple("s").lock((True, True, True))
+    node.parmTuple("p").lock((True, True, True))
+    node.parm("scale").lock(True)]]></script>
+  </tool>
+</shelfDocument>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="proxyposescope" label="Proxy Pose Scope" icon="PLASMA_App">
+    <helpText><![CDATA[= Title =
+
+#name: value
+
+"""Sumary."""
+
+== First heading ==
+
+This is a paragraph.
+
+Separate paragraphs with a blank line.
+
+== Second heading ==
+
+* Bullet one.
+
+* Bullet two
+
+    Sub-paragraph of bullet two.
+
+This is *bold*, this is _italics_, this is `code`, 
+
+// Single line comment
+
+<!--
+HTML-style freeform comment
+-->]]></helpText>
+    <script scriptType="python"><![CDATA[#################################
+# populate pose_scope
+# inside proxy geometry
+# with channels
+#################################
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+
+# get the objects
+objlist = hou.selectedNodes()
+
+# get the current hda
+hda = objlist[0].parent()
+hda_definition = objlist[0].parent().type().definition()
+
+# get the display SOP
+for node in objlist:
+    dsop = node.displayNode()
+    # is dsop a pose_scope
+    string = ''
+    if dsop.type().name() == 'posescope':
+        initialparms = dsop.parm('channels1').eval()
+        initialparms = initialparms.split(' ')
+        chans = hou.ui.selectParm(hou.objNodeTypeCategory() , True, dsop, 'Select Channels', 'Pose Scope Channels', initialparms)
+        string = ' '.join(chans)
+        dsop.parm('channels1').set(string)]]></script>
+  </tool>
+</shelfDocument>

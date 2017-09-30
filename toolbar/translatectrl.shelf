@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="translatectrl" label="Translate CTRL" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[# make a default Trasnslate CTRL
+# if there is a selected node
+# make this the parent
+# shift+click - parent CTRL
+# ctrl+click - no parent
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+
+#cur_node = network_editor.pwd()
+#print cur_node
+
+editors = [pane for pane in hou.ui.paneTabs() if isinstance(pane, hou.NetworkEditor) and pane.isCurrentTab()]
+
+network_editor = editors[-1]
+cur_node = network_editor.pwd()
+
+selection = None
+if hou.selectedNodes():
+    selection = hou.selectedNodes()[0]
+    parent = selection.parent()
+else:
+    parent = cur_node
+
+choice = ()
+choice = hou.ui.readInput(
+    message="Specify a prefix",
+    initial_contents=kwargs['toolname'])
+
+name = choice[1]
+
+
+controlname =  name + '_ctrl'
+autoname = name + '_auto'
+offsetname = name + '_offset'
+
+ctrls = []
+# make offset
+offset = parent.createNode("null", offsetname)
+offset.setSelectableInViewport(False)
+offset.parm("picking").set(0)
+offset.setDisplayFlag(False)
+if selection is not None:
+    offset.setFirstInput(selection)
+offset.moveToGoodPosition()
+
+offset.parm("rOrd").set("zyx")
+for child in offset.children():
+    child.destroy()
+ctrls.append(offset)
+
+# make auto
+auto = parent.createNode("null", autoname)
+auto.setSelectableInViewport(False)
+auto.parm("picking").set(0)
+auto.setDisplayFlag(False)
+auto.setFirstInput(offset)
+auto.moveToGoodPosition()
+auto.parm('keeppos').set(True)
+auto.parm("rOrd").set("zyx")
+for child in auto.children():
+    child.destroy()
+ctrls.append(auto)    
+
+# make ctrl
+control = parent.createNode("null", controlname)
+control.setFirstInput(auto)
+control.moveToGoodPosition()
+control.parm('keeppos').set(True)
+control.parm("rOrd").set("zyx")
+control.setColor(hou.Color([0.145, 0.667, 0.557]))
+ctrls.append(control)
+
+# offset ctrl from pivot
+#if shiftclick:
+#    bonelength = bone.parm("length").eval()
+#    control.parm("tz").set(-bonelength/3)
+#    control.parm("pz").set(bonelength/3)
+
+for ctrl in ctrls:
+    ctrl.parm('controltype').set(2)
+    ctrl.parm('geoscale').set(1)
+    ctrl.moveParmTransformIntoPreTransform()
+#    ctrl.parm('orientation').set(3)
+
+    # Lock parameters so unexpected behavior isn't allowed
+    value = 1
+    ctrl.parmTuple('t').lock((value, value, value))
+    ctrl.parmTuple('r').lock((value, value, value))
+    ctrl.parmTuple('s').lock((value, value, value))
+    ctrl.parmTuple('p').lock((value, value, value))
+    ctrl.parm('scale').lock(value)
+    
+value = 0
+control.parmTuple('t').lock((value, value, value))]]></script>
+  </tool>
+</shelfDocument>

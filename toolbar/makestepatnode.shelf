@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="makestepatnode" label="Make Step at Node" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[###################################
+# Create Sticky Note with
+# "Step 01" etc
+# Select node(s) in order
+# click button
+#################################
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+# get the objects
+nodelist = hou.selectedNodes()
+network = hou.selectedNodes()[0].parent()
+
+count = 1
+for node in nodelist:
+    nodeposition = node.position()
+    step = network.createStickyNote("__stickynote1")
+    steptext = "STEP " + str(count).zfill(2)
+    step.setText(steptext)
+    steppositionx = nodeposition[0] - 1.33356
+    steppositiony = nodeposition[1] - 0.3
+    stepposition = hou.Vector2(steppositionx, steppositiony)
+    step.setPosition(stepposition)
+    step.setSize(hou.Vector2(1.15, 0.455646))
+    
+    step.setMinimized(True)
+    step.setSelected(False)
+    step.setColor(hou.Color([1, 0, 0]))
+    
+    count += 1]]></script>
+  </tool>
+</shelfDocument>

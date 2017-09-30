@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="popNode" label="Pop Node" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[# get the selected node
+node = hou.selectedNodes()[0]
+#print "The Node: ", node
+
+# get the first input of the node
+input = node.inputs()[0]
+#print "The Input of the node: ", input
+
+# get the first output of the node
+output = node.outputs()[0]
+#print "The output of the node: ", output
+
+# remove the input from the selected node
+node.setInput(0, None)
+
+# remove the input from the selected nodes first output
+output.setInput(0, input)
+
+# move the selected node away from it's current position
+node.shiftPosition((1, 0))
+
+
+]]></script>
+  </tool>
+</shelfDocument>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="togglelockout" label="Toggle Lock OUT" icon="PLASMA_App">
+    <helpText><![CDATA[Toggles the Lock state of a SOP called "OUT"]]></helpText>
+    <script scriptType="python"><![CDATA[# Find a Null called "OUT"
+# setHardLock(True)
+
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+
+# get the object
+nodes = hou.selectedNodes()
+
+for node in nodes:
+    sop = node.displayNode()
+    if ctrlclick:
+        sop.setHardLocked(False)
+    else:
+        sop.setHardLocked(True)]]></script>
+  </tool>
+</shelfDocument>

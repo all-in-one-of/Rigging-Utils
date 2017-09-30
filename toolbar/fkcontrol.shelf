@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="fkcontrol_1" label="FKControl 1" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[##################################
+# Make FK controls
+# Select bone(s)
+# click button
+#################################
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+# get the bones
+bonelist = hou.selectedNodes()
+netparent = bonelist[0].parent()
+# get the average length
+length = 0.0
+for bone in bonelist:
+    name = bone.name()
+    fkcontrolname =  name + '_ctrl'
+    length += bone.parm("length").eval()
+    avglength = length/len(bonelist)
+    ctrlsize = avglength * 2.0
+
+    # make ctrl
+    fkcontrol = netparent.createNode("null", fkcontrolname)
+    fkcontrol.setFirstInput(bone)
+    fkcontrol.moveToGoodPosition()
+    fkcontrol.parm('keeppos').set(True)
+    fkcontrol.setFirstInput(None)
+    fkcontrol.parm('rOrd').set(bone.parm('rOrd').eval())
+    bone.parm('rOrd').setExpression('ch("' + bone.relativePathTo(fkcontrol) + '/rOrd")')
+    bone.parm('keeppos').set(True)
+    boneinputs = bone.inputs()
+
+    # offset ctrl from pivot
+    if shiftclick:
+        bonelength = bone.parm("length").eval()
+        fkcontrol.parm("tz").set(-bonelength/3)
+        fkcontrol.parm("pz").set(bonelength/3)
+        
+    # inline
+    if ctrlclick:
+        if boneinputs != ():
+            fkcontrol.setFirstInput(boneinputs[0])
+            fkcontrol.moveToGoodPosition()
+            bone.setFirstInput(fkcontrol)
+        else:
+            fkcontrol.setFirstInput(None)
+            bone.setFirstInput(fkcontrol)
+        value = 1
+        bone.parm('tx').lock(value)
+        bone.parm('ty').lock(value)
+        bone.parm('tz').lock(value)
+        bone.parm('rx').lock(value)
+        bone.parm('ry').lock(value)
+        bone.parm('rz').lock(value)
+        bone.parm('scale').lock(value)
+    else:
+        if boneinputs != ():
+            fkcontrol.setFirstInput(boneinputs[0])
+        else:
+            fkcontrol.setFirstInput(None)
+        value = 1
+        bone.parm('tx').lock(value)
+        bone.parm('ty').lock(value)
+        bone.parm('tz').lock(value)
+        bone.parm('scale').lock(value)
+        bone.parm('rx').setExpression('ch("' + bone.relativePathTo(fkcontrol) + '/rx")')
+        bone.parm('ry').setExpression('ch("' + bone.relativePathTo(fkcontrol) + '/ry")')
+        bone.parm('rz').setExpression('ch("' + bone.relativePathTo(fkcontrol) + '/rz")')
+
+    fkcontrol.parm('controltype').set(1)
+    fkcontrol.parm('geoscale').set(ctrlsize)
+    fkcontrol.moveParmTransformIntoPreTransform()
+    fkcontrol.parm('orientation').set(3)
+    
+    # Lock parameters so unexpected behavior isn't allowed
+    value = 1
+    fkcontrol.parm('tx').lock(value)
+    fkcontrol.parm('ty').lock(value)
+    fkcontrol.parm('tz').lock(value)
+    fkcontrol.parm('sx').lock(value)
+    fkcontrol.parm('sy').lock(value)
+    fkcontrol.parm('sz').lock(value)
+    fkcontrol.parm('px').lock(value)
+    fkcontrol.parm('py').lock(value)
+    fkcontrol.parm('pz').lock(value)
+    fkcontrol.parm('scale').lock(value)
+        ]]></script>
+  </tool>
+</shelfDocument>

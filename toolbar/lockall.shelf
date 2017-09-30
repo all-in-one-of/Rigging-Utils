@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="lockall" label="Lock All" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[##################################
+# Lock or Unlock All Transform Parms
+# protect parms with expressions or keys
+# Select geo Object
+# click button to Lock
+# ctrl+click to Unlock
+#################################
+ctrlclick = kwargs["ctrlclick"]
+# shift+click to delete channels
+# not implemented
+shiftclick = kwargs["shiftclick"]
+# get the geo Object
+nodes = hou.selectedNodes()
+
+# find parms that don't have expressions
+# and lock them
+transparms = ['tx', 'ty', 'tz', 'rx', 'ry', 'rz', 'sx', 'sy', 'sz', 'px', 'py', 'pz', 'scale']
+for node in nodes:
+    for parm in node.parms():
+        if len(parm.keyframes()) > 0 and parm.expression() != "":
+            pass
+        else:
+            if parm.name() in transparms:
+                if ctrlclick:
+                    parm.lock(0)
+                else:
+                    parm.lock(1)
+
+
+]]></script>
+  </tool>
+</shelfDocument>

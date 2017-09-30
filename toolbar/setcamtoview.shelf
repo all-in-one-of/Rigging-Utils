@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="setcamtoview" label="Set Camera To View" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[##################################
+# Set Camera to Viewer
+# Select a Camera Object
+# click button
+#################################
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+# get the objects
+
+import toolutils
+desktop = hou.ui.curDesktop()
+scene_viewer = desktop.paneTabOfType(hou.paneTabType.SceneViewer)
+viewport = scene_viewer.curViewport()
+try:
+    cam = hou.selectedNodes()[0]
+    viewport.saveViewToCamera(cam)
+except IndexError:
+    hou.ui.displayMessage("Please select a camera.")
+]]></script>
+  </tool>
+</shelfDocument>

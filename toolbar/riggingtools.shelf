@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="riggngtools" label="Rigging Tools" icon="hicon:/SVGIcons.index?BUTTONS_link.svg">
+    <script scriptType="python"><![CDATA[
+import sys
+sys.path.append("/mnt/file/staff/michael/scripts/rigging_tools_pypanel")
+
+import rigging_tools
+reload(rigging_tools)
+
+index = 0
+desktop = hou.ui.curDesktop()
+pane_tab = None
+pose_lib = None
+
+while True:
+   pane_tab = hou.ui.paneTabOfType(hou.paneTabType.PythonPanel, index)
+   if pane_tab is None:
+       break
+
+   interface = pane_tab.activeInterface()
+   if interface.name() == "rigging_tools":
+       pose_lib = pane_tab.activeInterfaceRootWidget()
+       break
+   
+   index += 1
+
+if pose_lib is None:
+    pane_tab = desktop.createFloatingPaneTab(hou.paneTabType.PythonPanel, python_panel_interface="rigging_tools")
+    pose_lib = pane_tab.activeInterfaceRootWidget()
+
+pane_tab.setIsCurrentTab()
+#pose_lib.setCharacter(foo)]]></script>
+  </tool>
+</shelfDocument>

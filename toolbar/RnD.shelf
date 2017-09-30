@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <toolshelf name="RnD" label="RnD">
+    <memberTool name="makeOUTnull"/>
+    <memberTool name="tool_1"/>
+    <memberTool name="nullAtEnd"/>
+    <memberTool name="fkcontrol_1"/>
+  </toolshelf>
+
+  <tool name="makeOUTnull" label="OUTn" icon="hicon:/SVGIcons.index?BUTTONS_close.svg">
+    <helpText><![CDATA[This Tool will create a null node after the selected node.]]></helpText>
+    <script scriptType="python"><![CDATA[node = hou.pwd()
+for i in hou.selectedNodes():
+    if hou.nodeTypeCategories().keys():
+### Above function lets you call this function on any context ###
+        dir = i.parent().path() + '/'
+        selNodeName = i.name()
+        nodeinfo = i.type().name()
+        otherNameTemp = hou.ui.readInput('Name the null', buttons=('OK', 'CANCEL'), initial_contents='')
+        spacer = "_"
+        if otherNameTemp[1] is not '':
+            otherName = spacer + str(otherNameTemp[1])
+        else:
+            otherName = ''
+        if hou.node(dir+'OUTPUT%s'%otherName):
+            nullnode = hou.node('/%s'%dir).createNode('null', 'OUTPUT'+spacer+'%s'%otherName + '0')
+        else:
+            nullnode = hou.node('/%s'%dir).createNode('null', 'OUTPUT%s'%otherName)
+        selNodePos = i.position()
+        nullnode.setColor(hou.Color( [0,0,0] ))
+### Setting node position ###
+        nullnode.setPosition(hou.Vector2(selNodePos[0],selNodePos[1]-1))
+        nullnode.setInput(0,i)
+        i.setSelected(False)
+        nullnode.setSelected(False)
+        nullnode.setSelectableInViewport(0)
+        
+### Setting render and display flags for respective contexts ###
+        try:
+            nullnode.setDisplayFlag(True)
+            nullnode.setRenderFlag(True)
+        except:
+            nullnode.setDisplayFlag(True)]]></script>
+  </tool>
+</shelfDocument>

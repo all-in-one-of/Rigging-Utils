@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="splitbone" label="Split Bone" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[# split selected bones into multiple bones
+import random
+# Bone Colors
+""" Gives back a random color. If a prevcolor
+    is specified, the function makes sure that the
+    randomly selected color is not the same as the
+    previous color """
+COLORS = [(1, 0, 0),
+          (0, 1, 0),
+          (0, 0, 1),
+          (1, 1, 0),
+          (0, 1, 1),
+          (1, 0, 1),
+          (1, 0.50, 0),
+          (0.50, 1, 0),
+          (0, 0.5, 1),
+          (0, 1, 0.5),
+          (0.5, 0, 1),
+          (1, 0, 0.5)]
+colors_max = len(COLORS)-1
+
+# http://stackoverflow.com/questions/196017/unique-non-repeating-random-numbers-in-o1
+def getRandomColor():
+    # Reset to max if we've gone through the entire array
+    global colors_max
+
+    if colors_max == 0:
+        colors_max = len(COLORS)-1
+
+    randidx = random.randint(0, colors_max)
+    randcolor = COLORS[randidx]
+
+    # Swapping the two so the next time this function gets called
+    # we don't return the same color
+    COLORS[randidx], COLORS[colors_max] = \
+        COLORS[colors_max], COLORS[randidx]
+    colors_max -= 1
+
+    return randcolor
+    
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+
+selection = None
+if hou.selectedNodes():
+    bonelist = hou.selectedNodes()
+    netparent = bonelist[0].parent()
+
+prefix = ()
+prefix = hou.ui.readInput(
+    message="Split Bone Prefix:",
+    initial_contents = "split_")
+
+prefix = prefix[1]
+
+numsplit = ()
+numsplit = hou.ui.readInput(
+    message="Divide Bone(s) into:",
+    initial_contents = "4")
+
+numsplit = int(numsplit[1])
+
+for bone in bonelist:
+    name = bone.name()
+    bonelength = bone.parm("length").eval()
+    splitbonelength = bonelength/int(numsplit)
+    
+    if ctrlclick:
+        # make splitbone root
+        root = netparent.createNode("null", name + "_splitroot")
+        root.setFirstInput(bone)
+        root.parm("keeppos").set(True)
+        root.moveToGoodPosition()
+        root.setFirstInput(None)
+        parent = root
+    else:
+        parent = bone
+        
+    for num in range(0, numsplit):
+        boneColor = getRandomColor()
+        numbone = netparent.createNode("bone", name + "_split_0")
+        numbone.parm("length").set(splitbonelength)
+        numbone.parmTuple("dcolor").set(boneColor)
+        numbone.setDisplayFlag(True)
+        numbone.parm("picking").set(True)
+        numbone.setSelectableInViewport(False)
+        numbone.useXray(True)
+        numbone.parmTuple("t").set((0, 0, 0))
+        if num == 0 and not ctrlclick:
+            numbone.parm("tz").set(bonelength)
+        numbone.parmTuple("t").setAutoscope((True, True, True))
+        numbone.parmTuple("t").lock((True, True, True))
+        numbone.parmTuple("r").setAutoscope((True, True, True))
+        numbone.parm("rOrd").set("zyx")
+        
+        numbone.setFirstInput(parent)
+        numbone.parm("keeppos").set(True)
+        numbone.moveToGoodPosition()
+        if shiftclick:
+            numbone.setFirstInput(bone)
+            
+        parent = numbone
+        
+#if shiftclick:
+#    firstbonename = name + "_split_0"
+#    firstbone = hou.node(netparent.path()+"/"+firstbonename)
+#    firstbone.destroy()
+]]></script>
+  </tool>
+</shelfDocument>

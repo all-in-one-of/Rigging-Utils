@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="ctrlgroup" label="Ctrl Group" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[import toolutils
+import hou
+import sys
+
+
+activepane = toolutils.activePane(kwargs)
+
+typechoice = -1
+if isinstance(activepane, hou.SceneViewer):
+    typechoice = hou.ui.displayMessage(
+        text='Choose the IK Solver Type:',
+        help='\n'.join([ 'Basic IK', 'IK With Twist Affector']),
+        buttons=('Basic IK', 'IK With Twist Affector', 'Cancel'))
+    print  typechoice
+    
+
+
+stringchoice = ()
+if isinstance(activepane, hou.SceneViewer):
+    stringchoice = hou.ui.readInput(
+        message="Select a naming prefix for the nodes to be created",
+        initial_contents=kwargs['toolname'])
+
+    print stringchoice[1] + '_'
+    
+sceneviewer = toolutils.sceneViewer()
+rootparent = sceneviewer.selectObjects('Select a parent for the bone chain, if any, and press Enter to complete.',
+                                        allow_multisel=False)
+if rootparent is not ():
+    rootparent[0].setSelected(False, True)
+    print  rootparent]]></script>
+  </tool>
+</shelfDocument>

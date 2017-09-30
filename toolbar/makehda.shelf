@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="makehda" label="Makke HDA" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[# make an HDA from the selection
+
+#ctrlclick = kwargs["ctrlclick"]
+#shiftclick = kwargs["shiftclick"]
+
+editors = [pane for pane in hou.ui.paneTabs() if isinstance(pane, hou.NetworkEditor) and pane.isCurrentTab()]
+
+network_editor = editors[-1]
+cur_node = network_editor.pwd()
+
+selection = None
+if hou.selectedNodes():
+    selection = hou.selectedNodes()
+    parent = selection[0].parent()
+else:
+    parent = cur_node
+
+# get a name from the user
+hdaname = ()
+hdaname = hou.ui.readInput(
+    message="HDA Name: ",
+    initial_contents="myCoolHDA")
+    
+name = hdaname[1]
+
+# get min_num_inputs
+mininputs = ()
+mininputs = hou.ui.readInput(
+    message="Min Inputs: ",
+    initial_contents="0")
+    
+inputs = int(mininputs[1])
+
+node = selection[0]
+subnet = node.parent().collapseIntoSubnet(selection, subnet_name=name)
+print subnet
+filename = "$HIP/" + name + ".hda"
+assetnode = subnet.createDigitalAsset(
+    name = name,
+    hda_file_name = filename,
+    ignore_external_references = True,
+    min_num_inputs = inputs)]]></script>
+  </tool>
+</shelfDocument>

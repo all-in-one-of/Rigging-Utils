@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="nullAtEnd" label="Null At End" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[# Creates a null at the end of the bone
+
+for i in hou.selectedNodes():
+    selNodeName = i.name()
+    dir = i.parent().path() + '/'
+    
+    # Placing null at end of the bone
+    null = hou.node(dir).createNode('null', selNodeName+"_null")
+    null.setFirstInput(i)
+    null.parm('tz').set(-1 * i.evalParm('length'))
+    
+
+    null.parm('keeppos').set(1)
+    null.setFirstInput(None)
+
+    null.parm('rx').set(0)
+    null.parm('ry').set(0)
+    null.parm('rz').set(0)
+
+    null.moveParmTransformIntoPreTransform()
+
+]]></script>
+  </tool>
+</shelfDocument>
