@@ -5,8 +5,10 @@
  Note, that two definitions of the same element are not allowed in
  a single file. -->
 
-  <tool name="deleteconstraints" label="Delete Constraints" icon="PLASMA_App">
-    <script scriptType="python"><![CDATA[# Delete Constraints
+  <tool name="remove_FK_1" label="Remove FK 1" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[##################################
+# Remove FK controls - 
+# created by FKControl shelf tool
 # Select bone(s)
 # click button
 #################################
@@ -17,13 +19,16 @@ bonelist = hou.selectedNodes()
 netparent = bonelist[0].parent()
 
 for bone in bonelist:
-    for child in bone.children():
-        # delete constraint network
-        if child.name() == "constraints":
-            child.destroy()
-    bone.parm("constraints_path").set('')
-    bone.parm("constraints_on").set(False)
-
-hou.clearAllSelected()]]></script>
+    # get the parms
+    boner = bone.parmTuple("r")
+    bonerx = bone.parm("rx")
+    rOrd = bone.parm("rOrd")
+    # get the ctrl object
+    ctrlname = bonerx.expression().split("/")[1]
+    ctrl = netparent.node(ctrlname)
+    # remove the expressions
+    boner.deleteAllKeyframes()
+    rOrd.deleteAllKeyframes()
+    ctrl.destroy()]]></script>
   </tool>
 </shelfDocument>

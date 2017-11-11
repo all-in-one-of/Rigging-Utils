@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="nurbspatch" label="NURBS Patch" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[import toolutils
+from toolutils import ToolboxTemplateGroup
+
+
+# Toolbox Interface
+class NURBSPatchToolbox( ToolboxTemplateGroup ):
+    resolution = 1.0
+    
+    def __init__(self):
+        ToolboxTemplateGroup.__init__(self)
+        
+        g = NURBSPatchToolbox
+        self.addFloatField ( 
+            "resolution", 
+            "Resolution",
+            [g.resolution]
+            )
+    
+        ToolboxTemplateGroup.update(self,layout_opt="JUSTIFY(left,center) HSTRETCH")
+            
+    def updateGlobal(self): 
+        g = NURBSPatchToolbox
+        g.resolution = self.getValue("resolution")
+
+
+def getSelection():
+    """ Get geo selection from user """
+    viewer = toolutils.sceneViewer()
+    
+    toolbox = NURBSPatchToolbox()
+    
+    geoselection = viewer.selectGeometry(
+        prompt = "Select 4 points or a group of primitives that ecloses a quadrilateral.",
+        )
+    #toolbox.updateGlobals()
+    node = geoselection.nodes()[0]
+    geo = node.geometry()
+    selection = geoselection.selections()[0]
+    if not geoselection:
+        return
+    if geoselection.geometryType() == hou.geometryType.Primitives:
+        points = [geo.iterPoints()[i] for i in findCornerPoints(selection.prims(geo))]
+    elif geoselection.geometryType() == hou.geometryType.Points:
+        points = selection.points(geo)
+    else:
+        # ERROR: Unacceptable Type
+        return
+        
+    if len(points) > 4:
+        # ERROR: More than 4 vertices are given.
+        # Only quads are supported
+        print("Got more than 4 vertices")
+        return    
+        
+    return (node, points)
+    
+    
+def findCornerPoints(prims):
+    """ Find the corner vertices from selected prims """
+    pts_set = set()
+    for p in prims:
+        for v in p.vertices():
+            i = v.point().number()
+            if i in pts_set:
+                pts_set.remove(i)
+            else: 
+                pts_set.add(i)
+    return pts_set
+            
+    
+def createNURBSPatch(node, pts, resolution=1, remove_shortestpaths=False):
+    """ Create nurbs patches give the four corner points """
+    if len(pts) > 4:
+        return
+    
+    # TODO: create a plane with surface normal to determine which plane
+    # the patch is being created on which would affect along which axis we sort
+    u_sorted = sorted(pts, cmp=lambda x, y: cmp(x.position().x(), y.position().x()))
+    # v_sorted = sorted(pts, cmp=lambda x, y: cmp(x.position().y(), y.position().y()))
+    pt1, pt2 = sorted(u_sorted[:2], cmp=lambda x, y: cmp(x.position().y(), y.position().y()))
+    pt3, pt4 = sorted(u_sorted[2:], cmp=lambda x, y: cmp(x.position().y(), y.position().y()))
+
+    parent = node.parent()
+    
+    # Find u shortest path
+    u_shortestpath = parent.createNode('findshortestpath', "u_shortestpath")
+    u_shortestpath.setFirstInput(node)
+    u_shortestpath.parm('startpts').set(", ".join([str(pt1.number()), str(pt3.number())]))
+    u_shortestpath.parm('endpts').set(", ".join([str(pt2.number()), str(pt4.number())]))
+    
+    # Find v shortest paths
+    v_shortestpath = parent.createNode('findshortestpath', "v_shortestpath")
+    v_shortestpath.setFirstInput(node)
+    prims = u_shortestpath.geometry().prims()
+    
+    startpts = getPts(prims[0])
+    endpts = getPts(prims[1])
+
+    startParm = v_shortestpath.parm('startpts')
+    endParm = v_shortestpath.parm('endpts')
+    
+    for i, pt in enumerate(startpts):
+        if i >= len(endpts):
+            break
+        
+        # Must set beginning and end of list
+        if i == 0:
+            startParm.set(pt)
+            endParm.set(endpts[0])
+            continue
+        if i == len(startpts) - 1:
+            startParm.set("%s, %s" % (startParm.eval(), pt))
+            endParm.set("%s, %s" % (endParm.eval(), endpts[i]))
+            break
+
+        # Set based on the resolution
+        print(1/resolution)
+        print(i % (1/resolution))
+        if i % (1/resolution) == 0:
+            startParm.set("%s, %s" % (startParm.eval(), pt))
+            endParm.set("%s, %s" % (endParm.eval(), endpts[i]))
+
+    subnet = parent.createNode('subnet', 'nurbs_patch')
+    subnet.setFirstInput(node)
+    input = subnet.indirectInputs()[0]
+    
+    # Create v curve
+    v_curve_merge = subnet.createNode('merge', "v_curve_merge")
+    for p in v_shortestpath.geometry().prims():
+        v_curve = createCurve(subnet, p, "v")
+        v_curve.setFirstInput(input)
+        v_curve_merge.setNextInput(v_curve)
+  
+    # Create u curves
+    u_curve_merge = subnet.createNode('merge', "u_curve_merge")
+    for p in u_shortestpath.geometry().prims():
+        u_curve = createCurve(subnet, p, "u") 
+        u_curve.setFirstInput(input)
+        u_curve_merge.setNextInput(u_curve)
+    
+    skin = subnet.createNode('skin')
+    skin.setInput(0, u_curve_merge, 0)
+    skin.setInput(1, v_curve_merge, 0)
+    skin.setDisplayFlag(True)
+    skin.setRenderFlag(True)
+    
+    if remove_shortestpaths: 
+        v_shortestpath.destroy()
+        u_shortestpath.destroy()
+    
+    return subnet
+    
+    
+def createCurve(parent, prim, prefix):
+    curve = parent.createNode('curve', '%s_curve_%d' % (prefix, prim.number()))
+    curve.parm("type").set("nurbs")
+    curve.parm("method").set("breakpoints")
+    curve.parm("coords").set(getCoordinates(prim))
+    return curve
+ 
+    
+def getPts(prim):
+    return [str(v.point().attribValue('origpt')) for v in prim.vertices()]
+   
+    
+def getCoordinates(prim):
+    return " ".join(["p%d" % v.point().attribValue('origpt') for v in prim.vertices()])
+    
+    
+def execute():
+    selection = getSelection()
+    if not selection:
+        return
+    g = NURBSPatchToolbox
+    createNURBSPatch(*selection, resolution=1.0/5.0)
+    
+    
+execute()]]></script>
+  </tool>
+</shelfDocument>

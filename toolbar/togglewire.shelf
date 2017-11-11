@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="togglewire" label="Toggle Wireframe" icon="PLASMA_App">
+    <script scriptType="python"><![CDATA[##################################
+# Toggle gl_wireframe
+#################################
+ctrlclick = kwargs["ctrlclick"]
+shiftclick = kwargs["shiftclick"]
+# get the geo Object
+nodes = hou.selectedNodes()
+
+
+for node in nodes:
+    # find existing wrangle
+    # if it's there remove it
+    # if it isn't there create it
+    parent = node.displayNode()
+    wrangle = node.glob("gl_wireframe")
+    print "wrangle: ", wrangle
+    if wrangle is not ():
+        wrangle[0].destroy()
+    else:
+        wrangle = node.createNode("attribwrangle", "gl_wireframe")
+        wrangle.setDisplayFlag(True)
+        wrangle.setRenderFlag(True)
+        wrangle.setSelected(False)
+        wrangle.parm("class").set("detail")
+        wrangle.parm("snippet").set("float @gl_wireframe = 1;")
+        wrangle.setFirstInput(parent)
+        wrangle.moveToGoodPosition()
+        
+        
+        
+
+]]></script>
+  </tool>
+</shelfDocument>

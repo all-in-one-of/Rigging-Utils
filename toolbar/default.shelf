@@ -12,30 +12,7 @@
 shelfutils.installOrboltAsset(kwargs, "SideFX::toonsimple", "http://www.orbolt.com/asset/SideFX::toonsimple")]]></script>
   </tool>
 
-  <tool name="remove_FK_1" label="Remove FK 1" icon="PLASMA_App">
-    <script scriptType="python"><![CDATA[##################################
-# Remove FK controls - 
-# created by FKControl shelf tool
-# Select bone(s)
-# click button
-#################################
-ctrlclick = kwargs["ctrlclick"]
-shiftclick = kwargs["shiftclick"]
-# get the bones
-bonelist = hou.selectedNodes()
-netparent = bonelist[0].parent()
-
-for bone in bonelist:
-    # get the parms
-    boner = bone.parmTuple("r")
-    bonerx = bone.parm("rx")
-    rOrd = bone.parm("rOrd")
-    # get the ctrl object
-    ctrlname = bonerx.expression().split("/")[1]
-    ctrl = netparent.node(ctrlname)
-    # remove the expressions
-    boner.deleteAllKeyframes()
-    rOrd.deleteAllKeyframes()
-    ctrl.destroy()]]></script>
-  </tool>
+  <shelfSetEdit name="shelf_set_1" fileLocation="/opt/hfs17.0/houdini/toolbar/ShelfDefinitions.shelf">
+    <addMemberToolshelf name="rigshelf" inPosition="16"/>
+  </shelfSetEdit>
 </shelfDocument>

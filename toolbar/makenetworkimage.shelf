@@ -21,7 +21,7 @@ images = []
 for node in nodes:
     editor = hou.ui.paneTabOfType(hou.paneTabType.NetworkEditor)
     image = hou.NetworkImage()
-    image.setPath('$HFS/houdini/pic/numbers_A_'+ str(index+1) + '.png')
+    image.setPath('$HOME/Resources/Pic/numbers_A_'+ str(index+1) + '.jpg')
     image.setRelativeToPath(node.path())
     image.setRect(hou.BoundingRect(1.1, -1, 2, 2))
     index += 1

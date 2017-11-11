@@ -5,13 +5,6 @@
  Note, that two definitions of the same element are not allowed in
  a single file. -->
 
-  <toolshelf name="RnD" label="RnD">
-    <memberTool name="makeOUTnull"/>
-    <memberTool name="tool_1"/>
-    <memberTool name="nullAtEnd"/>
-    <memberTool name="fkcontrol_1"/>
-  </toolshelf>
-
   <tool name="makeOUTnull" label="OUTn" icon="hicon:/SVGIcons.index?BUTTONS_close.svg">
     <helpText><![CDATA[This Tool will create a null node after the selected node.]]></helpText>
     <script scriptType="python"><![CDATA[node = hou.pwd()
@@ -38,12 +31,12 @@ for i in hou.selectedNodes():
         nullnode.setInput(0,i)
         i.setSelected(False)
         nullnode.setSelected(False)
-        nullnode.setSelectableInViewport(0)
         
 ### Setting render and display flags for respective contexts ###
         try:
             nullnode.setDisplayFlag(True)
             nullnode.setRenderFlag(True)
+            nullnode.setSelectableInViewport(0)
         except:
             nullnode.setDisplayFlag(True)]]></script>
   </tool>

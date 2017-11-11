@@ -31,23 +31,11 @@
     <memberTool name="makestepatnode"/>
     <memberTool name="togglebonecolorlink"/>
     <memberTool name="setcamtoview"/>
+    <memberTool name="nurbspatch"/>
+    <memberTool name="makeOUTnull"/>
+    <memberTool name="nullAtEnd"/>
+    <memberTool name="fkcontrol_1"/>
+    <memberTool name="popNode"/>
+    <memberTool name="togglewire"/>
   </toolshelf>
-
-  <tool name="randomnulls" label="Random Nulls" icon="PLASMA_App">
-    <script scriptType="python"><![CDATA[from rigtoolutils import randomnulls
-
-randomnulls.createNulls()]]></script>
-  </tool>
-
-  <tool name="iktwisttool1" label="IK Twist Tool" icon="PLASMA_App">
-    <script scriptType="python"><![CDATA[from rigtoolutils import iktwisttool
-
-iktwisttool.invokeTool(kwargs)]]></script>
-  </tool>
-
-  <tool name="boneiktwisttool" label="Bone IK" icon="PLASMA_App">
-    <script scriptType="python"><![CDATA[from rigtoolutils import boneiktwisttool
-
-boneiktwisttool.invokeTool(kwargs)]]></script>
-  </tool>
 </shelfDocument>
